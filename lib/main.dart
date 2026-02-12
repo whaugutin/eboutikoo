@@ -11,13 +11,13 @@ List<String> favorisList = [];
 
 final Map<String, List<Map<String, String>>> categories = {
   "Kategori Elektwonik": [
-    {"name": "Laptop Dell", "price": "85000", "desc": "Bon laptop pou travay"},
-    {"name": "iPhone 15 Pro", "price": "650000", "desc": "Pi nouvo modèl"},
+    {"name": "Laptop Dell", "price": "85000", "desc": "Bon laptop pou travay", "image": "assets/images/laptop_dell.jpg"},
+    {"name": "iPhone 15 Pro", "price": "650000", "desc": "Pi nouvo modèl", "image": "assets/images/iphone_15_pro.jpg"},
   ],
   "Kategori Rad": [
-    {"name": "Chemiz Lakou", "price": "3500", "desc": "Koton bon kalite"},
-    {"name": "Wòb Tradisyonèl", "price": "12000", "desc": "Handmade ayisyen"},
-    {"name": "Savon Natirèl", "price": "800", "desc": "Pou po sansib"},
+    {"name": "Chemiz Lakou", "price": "3500", "desc": "Koton bon kalite", "image": "assets/images/chemiz_lakou.jpg"},
+    {"name": "Wòb Tradisyonèl", "price": "12000", "desc": "Handmade ayisyen", "image": "assets/images/wob_tradisyonel.jpg"},
+    {"name": "Savon Natirèl", "price": "800", "desc": "Pou po sansib", "image": "assets/images/savon_natirel.jpg"},
   ],
 };
 
@@ -31,10 +31,45 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'EBoutikoo',
       theme: ThemeData(
-        primaryColor: const Color(0xFF0D2A5B),
-        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF5E81F4)),
+        primaryColor: const Color(0xFF00695C),          // deep teal
+        scaffoldBackgroundColor: const Color(0xFFF5F9F8),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.teal,
+          accentColor: const Color(0xFFFFB300),        // warm amber
+        ).copyWith(secondary: const Color(0xFFFFB300)),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF00695C),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5E81F4)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFFFB300),
+            foregroundColor: Colors.black87,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFFFB300), width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+        ),
+        cardTheme: CardTheme(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          color: Colors.white,
         ),
       ),
       home: const SplashScreen(),
@@ -45,23 +80,71 @@ class MyApp extends StatelessWidget {
 // ─── SPLASH ──────────────────────────────────────────────────────────────────
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _scaleAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    _controller.forward();
+
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
     });
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Icon(Icons.shopping_bag_rounded, size: 100, color: Color(0xFF5E81F4))),
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF004D40), Color(0xFF009688)],
+          ),
+        ),
+        child: Center(
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.storefront_rounded, size: 110, color: Colors.white),
+                const SizedBox(height: 16),
+                const Text(
+                  'EBoutikoo',
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -69,68 +152,81 @@ class _SplashScreenState extends State<SplashScreen> {
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _email = TextEditingController();
-  final _pass = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Koneksyon")),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _email,
-                decoration: const InputDecoration(labelText: "Imel", border: OutlineInputBorder()),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return "Imel obligatwa";
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) {
-                    return "Imel pa bon (eg: non@gmail.com)";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _pass,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Modpas", border: OutlineInputBorder()),
-                validator: (v) => (v == null || v.isEmpty) ? "Modpas obligatwa" : null,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      if (fakeDatabase[_email.text.trim()] == _pass.text) {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainWrapper()));
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Imel oswa modpas pa kòrèk")),
-                        );
-                      }
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.lock_open_rounded, size: 80, color: Theme.of(context).primaryColor),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _emailCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Imel",
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return "Imel obligatwa";
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) {
+                      return "Fòma imel pa bon";
                     }
+                    return null;
                   },
-                  child: const Text("KONEKTE"),
                 ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
-                child: const Text("Enskri yon kont"),
-              ),
-            ],
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _passCtrl,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Modpas",
+                    prefixIcon: Icon(Icons.lock_outline),
+                  ),
+                  validator: (v) => (v == null || v.isEmpty) ? "Modpas obligatwa" : null,
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        final email = _emailCtrl.text.trim();
+                        if (fakeDatabase[email] == _passCtrl.text) {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainWrapper()));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Imel oswa modpas pa kòrèk")),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text("KONEKTE", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
+                  child: const Text("Ou poko gen kont? Enskri", style: TextStyle(color: Color(0xFFFFB300))),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -141,73 +237,86 @@ class _LoginPageState extends State<LoginPage> {
 // ─── SIGN UP ─────────────────────────────────────────────────────────────────
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
-  final _pass = TextEditingController();
-  final _passConfirm = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Enskripsyon")),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _email,
-                decoration: const InputDecoration(labelText: "Imel", border: OutlineInputBorder()),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return "Imel obligatwa";
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return "Imel pa bon";
-                  if (fakeDatabase.containsKey(v.trim())) return "Imel sa deja itilize";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _pass,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Modpas", border: OutlineInputBorder()),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return "Modpas obligatwa";
-                  if (v.length < 4) return "Omwen 4 karaktè";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passConfirm,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Konfime modpas", border: OutlineInputBorder()),
-                validator: (v) => (v != _pass.text) ? "Modpas yo pa menm" : null,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      fakeDatabase[_email.text.trim()] = _pass.text;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Kont kreye ! Ou ka konekte kounye a")),
-                      );
-                      Navigator.pop(context);
-                    }
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.person_add_rounded, size: 80, color: Theme.of(context).primaryColor),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _emailCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Imel",
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return "Imel obligatwa";
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return "Fòma imel pa bon";
+                    if (fakeDatabase.containsKey(v.trim())) return "Imel sa deja itilize";
+                    return null;
                   },
-                  child: const Text("KREYE KONT"),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _passCtrl,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Modpas",
+                    prefixIcon: Icon(Icons.lock_outline),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return "Modpas obligatwa";
+                    if (v.length < 4) return "Omwen 4 karaktè";
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _confirmCtrl,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Konfime modpas",
+                    prefixIcon: Icon(Icons.lock_outline),
+                  ),
+                  validator: (v) => (v != _passCtrl.text) ? "Modpas yo pa menm" : null,
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        fakeDatabase[_emailCtrl.text.trim()] = _passCtrl.text;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Kont kreye ak siksè!")),
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text("KREYE KONT", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -218,14 +327,15 @@ class _SignUpPageState extends State<SignUpPage> {
 // ─── MAIN WRAPPER ────────────────────────────────────────────────────────────
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
+
   @override
   State<MainWrapper> createState() => _MainWrapperState();
 }
 
 class _MainWrapperState extends State<MainWrapper> {
-  int _index = 0;
+  int _currentIndex = 0;
 
-  final _pages = [
+  final List<Widget> _screens = [
     const HomeScreen(),
     const FavoritesScreen(),
     const CartScreen(),
@@ -234,18 +344,117 @@ class _MainWrapperState extends State<MainWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_index],
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        selectedItemColor: const Color(0xFF5E81F4),
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        selectedItemColor: const Color(0xFFFFB300),
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        elevation: 8,
+        type: BottomNavigationBarType.fixed,
+        selectedFontSize: 13,
+        unselectedFontSize: 12,
+        iconSize: 28,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favoris'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Panye'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Kay'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite_rounded), label: 'Favori'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_rounded), label: 'Panye'),
         ],
       ),
     );
+  }
+}
+
+// ─── PRODUCT CARD ────────────────────────────────────────────────────────────
+class ProductCard extends StatelessWidget {
+  final Map<String, String> product;
+  final VoidCallback onToggleFavorite;
+
+  const ProductCard({super.key, required this.product, required this.onToggleFavorite});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = product["name"]!;
+    final imagePath = product["image"] ?? 'assets/images/placeholder.jpg';
+
+    return ProductCardBase(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: Image.asset(
+              imagePath,
+              height: 150,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: 150,
+                color: Colors.teal.shade100,
+                child: const Icon(Icons.image_not_supported, size: 60, color: Colors.teal),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "${product["price"]} gourdes",
+                  style: TextStyle(
+                    color: Colors.teal.shade700,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.add_shopping_cart_rounded, color: Color(0xFFFFB300)),
+                      onPressed: () {
+                        panierList.add(name);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("$name ajoute nan panye")),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        favorisList.contains(name) ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                        color: favorisList.contains(name) ? Colors.red : Colors.grey,
+                      ),
+                      onPressed: onToggleFavorite,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Helper to avoid code duplication
+class ProductCardBase extends StatelessWidget {
+  final Widget child;
+
+  const ProductCardBase({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
   }
 }
 
@@ -262,132 +471,70 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...categories.keys.map((cat) => _categoryCard(context, cat)),
+            ...categories.keys.map((cat) => _categoryTile(context, cat)),
             const Padding(
-              padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-              child: Text("Top Pwodwi",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              padding: EdgeInsets.fromLTRB(20, 28, 20, 12),
+              child: Text("Pwodwi ki pi popilè", style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold)),
             ),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.78,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+                childAspectRatio: 0.72,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
               itemCount: 4,
               itemBuilder: (context, i) {
                 final all = categories.values.expand((e) => e).toList();
                 if (i >= all.length) return const SizedBox.shrink();
-                return _productCard(context, all[i]);
+                final p = all[i];
+                return GestureDetector(
+                  child: ProductCard(
+                    product: p,
+                    onToggleFavorite: () {
+                      final name = p["name"]!;
+                      if (favorisList.contains(name)) {
+                        favorisList.remove(name);
+                      } else {
+                        favorisList.add(name);
+                      }
+                      context.findAncestorStateOfType<_MainWrapperState>()?.setState(() {});
+                    },
+                  ),
+                );
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  Widget _categoryCard(BuildContext context, String name) {
+  Widget _categoryTile(BuildContext context, String name) {
     return GestureDetector(
-      onTap: () =>
-          Navigator.push(context, MaterialPageRoute(
-              builder: (_) => CategoryScreen(categoryName: name))),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CategoryScreen(categoryName: name))),
       child: Container(
-        height: 100,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(color: const Color(0xFF0D2A5B),
-            borderRadius: BorderRadius.circular(12)),
-        alignment: Alignment.center,
-        child: Text(name, style: const TextStyle(
-            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-      ),
-    );
-  }
-
-  Widget _productCard(BuildContext context, Map<String, String> p) {
-    final name = p["name"]!;
-    final imagePath = p["image"] ??
-        'assets/images/placeholder.jpg'; // fallback if missing
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(
-              imagePath,
-              height: 140,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 140,
-                  color: const Color(0xFF0D2A5B),
-                  child: const Icon(
-                      Icons.image_not_supported, color: Colors.white, size: 60),
-                );
-              },
-            ),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 28),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF009688), Color(0xFF00796B)],
           ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "${p["price"]} gourdes",
-                  style: const TextStyle(color: Colors.green, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                          Icons.add_shopping_cart, color: Color(0xFF5E81F4)),
-                      onPressed: () {
-                        panierList.add(name);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("$name ajoute nan panye")),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        favorisList.contains(name) ? Icons.favorite : Icons
-                            .favorite_border,
-                        color: favorisList.contains(name) ? Colors.red : null,
-                      ),
-                      onPressed: () {
-                        setState(() { // ← make sure this is inside a StatefulWidget
-                          if (favorisList.contains(name)) {
-                            favorisList.remove(name);
-                          } else {
-                            favorisList.add(name);
-                          }
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(color: Colors.teal.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            name,
+            style: const TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w600),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -396,6 +543,7 @@ class HomeScreen extends StatelessWidget {
 // ─── CATEGORY SCREEN ─────────────────────────────────────────────────────────
 class CategoryScreen extends StatelessWidget {
   final String categoryName;
+
   const CategoryScreen({super.key, required this.categoryName});
 
   @override
@@ -405,21 +553,32 @@ class CategoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(categoryName)),
       body: GridView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.78,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          childAspectRatio: 0.72,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
         ),
         itemCount: products.length,
-        itemBuilder: (context, i) => HomeScreen()._productCard(context, products[i]),
+        itemBuilder: (context, i) {
+          final p = products[i];
+          return ProductCard(
+            product: p,
+            onToggleFavorite: () {
+              final name = p["name"]!;
+              if (favorisList.contains(name)) favorisList.remove(name);
+              else favorisList.add(name);
+              context.findAncestorStateOfType<_MainWrapperState>()?.setState(() {});
+            },
+          );
+        },
       ),
     );
   }
 }
 
-// ─── FAVORITES ───────────────────────────────────────────────────────────────
+// ─── FAVORITES & CART (unchanged logic, just theme adapted) ──────────────────
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
   @override
@@ -430,17 +589,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Favoris")),
+      appBar: AppBar(title: const Text("Favori mwen")),
       body: favorisList.isEmpty
-          ? const Center(child: Text("Ou poko gen favori"))
+          ? const Center(child: Text("Ou poko gen okenn favori", style: TextStyle(fontSize: 18)))
           : ListView.builder(
         itemCount: favorisList.length,
         itemBuilder: (context, i) {
           final item = favorisList[i];
           return ListTile(
+            leading: const Icon(Icons.favorite_rounded, color: Colors.red),
             title: Text(item),
             trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
               onPressed: () => setState(() => favorisList.removeAt(i)),
             ),
           );
@@ -450,7 +610,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 }
 
-// ─── CART ────────────────────────────────────────────────────────────────────
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
   @override
@@ -461,17 +620,18 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Panye")),
+      appBar: AppBar(title: const Text("Panye mwen")),
       body: panierList.isEmpty
-          ? const Center(child: Text("Panye vid"))
+          ? const Center(child: Text("Panye ou vid", style: TextStyle(fontSize: 18)))
           : ListView.builder(
         itemCount: panierList.length,
         itemBuilder: (context, i) {
           final item = panierList[i];
           return ListTile(
+            leading: const Icon(Icons.shopping_bag_rounded, color: Color(0xFFFFB300)),
             title: Text(item),
             trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
               onPressed: () => setState(() => panierList.removeAt(i)),
             ),
           );
@@ -481,43 +641,48 @@ class _CartScreenState extends State<CartScreen> {
   }
 }
 
-// ======================= Drawer ===================================================
+// ─── DRAWER ──────────────────────────────────────────────────────────────────
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: [
-          const UserAccountsDrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF5E81F4)),
-            accountName: Text("EBoutikoo"),
-            accountEmail: Text("Itilizatè"),
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(color: Color(0xFF009688)),
+            accountName: const Text("EBoutikoo", style: TextStyle(fontSize: 22)),
+            accountEmail: const Text("Byenveni"),
+            currentAccountPicture: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.storefront_rounded, size: 40, color: Color(0xFF009688)),
+            ),
           ),
           ListTile(
-            leading: const Icon(Icons.grid_view),
-            title: const Text("Lis tout pwodwi"),
+            leading: const Icon(Icons.grid_view_rounded),
+            title: const Text("Tout pwodwi"),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (_) => const AllProductsScreen()));
             },
           ),
           ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text("logout"),
+            leading: const Icon(Icons.logout_rounded),
+            title: const Text("Dekonekte"),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
             },
           ),
+          const Spacer(),
         ],
       ),
     );
   }
 }
 
-// ─── ALL PRODUCTS SCREEN ─────────────────────────────────────────────────────
+// ─── ALL PRODUCTS ────────────────────────────────────────────────────────────
 class AllProductsScreen extends StatefulWidget {
   const AllProductsScreen({super.key});
 
@@ -528,69 +693,33 @@ class AllProductsScreen extends StatefulWidget {
 class _AllProductsScreenState extends State<AllProductsScreen> {
   @override
   Widget build(BuildContext context) {
-    final allProducts = categories.values.expand((list) => list).toList();
+    final allProducts = categories.values.expand((e) => e).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("All products")),
+      appBar: AppBar(title: const Text("Tout pwodwi")),
       body: GridView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.78,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          childAspectRatio: 0.72,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
         ),
         itemCount: allProducts.length,
         itemBuilder: (context, i) {
           final p = allProducts[i];
-          final name = p["name"]!;
-          return Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                Expanded(child: Container(decoration: const BoxDecoration(color: Color(
-                    0xFF8BADE7), borderRadius: BorderRadius.vertical(top: Radius.circular(12))))),
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Text(name, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                      Text("${p["price"]} gourdes", style: const TextStyle(color: Colors.green)),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.add_shopping_cart, color: Color(0xFF5E81F4)),
-                            onPressed: () {
-                              panierList.add(name);
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$name in cart")));
-                              setState(() {});
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              favorisList.contains(name) ? Icons.favorite : Icons.favorite_border,
-                              color: favorisList.contains(name) ? Colors.red : null,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (favorisList.contains(name)) {
-                                  favorisList.remove(name);
-                                } else {
-                                  favorisList.add(name);
-                                }
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          return ProductCard(
+            product: p,
+            onToggleFavorite: () {
+              final name = p["name"]!;
+              setState(() {
+                if (favorisList.contains(name)) {
+                  favorisList.remove(name);
+                } else {
+                  favorisList.add(name);
+                }
+              });
+            },
           );
         },
       ),
