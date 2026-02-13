@@ -4,7 +4,7 @@ import 'dart:async';
 void main() => runApp(const MyApp());
 
 // ─── FAKE DATA ───────────────────────────────────────────────────────────────
-Map<String, String> fakeDatabase = {"whitchyaugustin@gmail.com": "1234"};
+Map<String, String> fakeDatabase = {"whitchyaugustin@gmaiil.com": "1234"};
 
 List<String> panierList = [];
 List<String> favorisList = [];
@@ -66,8 +66,7 @@ class MyApp extends StatelessWidget {
             borderSide: BorderSide(color: Colors.grey.shade300),
           ),
         ),
-        // CardThemeData is the correct type for newer Flutter SDKs
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           elevation: 3,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           color: Colors.white,
@@ -358,8 +357,8 @@ class _MainWrapperState extends State<MainWrapper> {
         unselectedFontSize: 12,
         iconSize: 28,
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Kay'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite_rounded), label: 'Favori'),
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Akèy'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_rounded), label: 'Panye'),
         ],
       ),
@@ -409,7 +408,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "${product["price"]} HTG",
+                  "${product["price"]} gourdes",
                   style: TextStyle(
                     color: Colors.teal.shade700,
                     fontSize: 16,
@@ -502,9 +501,6 @@ class HomeScreen extends StatelessWidget {
                       } else {
                         favorisList.add(name);
                       }
-                      // The analyzer warns about calling setState on another State instance
-                      // (it's allowed at runtime here). Suppress the specific lint to reduce noise.
-                      // ignore: invalid_use_of_protected_member
                       context.findAncestorStateOfType<_MainWrapperState>()?.setState(() {});
                     },
                   ),
@@ -530,8 +526,7 @@ class HomeScreen extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            // withOpacity is deprecated in newer SDKs; use withAlpha to avoid precision loss
-            BoxShadow(color: Colors.teal.withAlpha((0.3 * 255).round()), blurRadius: 8, offset: const Offset(0, 4)),
+            BoxShadow(color: Colors.teal.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
           ],
         ),
         child: Center(
@@ -574,7 +569,6 @@ class CategoryScreen extends StatelessWidget {
               final name = p["name"]!;
               if (favorisList.contains(name)) favorisList.remove(name);
               else favorisList.add(name);
-              // ignore: invalid_use_of_protected_member
               context.findAncestorStateOfType<_MainWrapperState>()?.setState(() {});
             },
           );
