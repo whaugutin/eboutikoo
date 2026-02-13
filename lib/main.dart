@@ -409,7 +409,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "${product["price"]} gourdes",
+                  "${product["price"]} HTG",
                   style: TextStyle(
                     color: Colors.teal.shade700,
                     fontSize: 16,
@@ -595,9 +595,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Favori mwen")),
+      appBar: AppBar(title: const Text("Favori m yo")),
       body: favorisList.isEmpty
-          ? const Center(child: Text("Ou poko gen okenn favori", style: TextStyle(fontSize: 18)))
+          ? const Center(child: Text("Ou poko gen okenn pwodui favori", style: TextStyle(fontSize: 18)))
           : ListView.builder(
         itemCount: favorisList.length,
         itemBuilder: (context, i) {
@@ -667,7 +667,7 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.grid_view_rounded),
-            title: const Text("Tout pwodwi"),
+            title: const Text("Tout pwodwi yo"),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (_) => const AllProductsScreen()));
@@ -702,7 +702,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
     final allProducts = categories.values.expand((e) => e).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Tout pwodwi")),
+      appBar: AppBar(title: const Text("Tout pwodwi yo")),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
