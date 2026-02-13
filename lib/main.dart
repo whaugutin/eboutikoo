@@ -4,20 +4,20 @@ import 'dart:async';
 void main() => runApp(const MyApp());
 
 // ─── FAKE DATA ───────────────────────────────────────────────────────────────
-Map<String, String> fakeDatabase = {"test@example.com": "1234"};
+Map<String, String> fakeDatabase = {"whitchyaugustin@gmail.com": "1234"};
 
 List<String> panierList = [];
 List<String> favorisList = [];
 
 final Map<String, List<Map<String, String>>> categories = {
-  "Kategori Elektwonik": [
-    {"name": "Laptop Dell", "price": "85000", "desc": "Bon laptop pou travay", "image": "assets/images/laptop_dell.jpg"},
-    {"name": "iPhone 15 Pro", "price": "650000", "desc": "Pi nouvo modèl", "image": "assets/images/iphone_15_pro.jpg"},
+  "Kategori Kosmetik": [
+    {"name": "Savon", "price": "500", "desc": "Savon ki fè po w bèl ki fèt ak myèl", "image": "assets/images/savon_miel.png"},
+    {"name": "Krèm po", "price": "600", "desc": "Krèm ki kenbe po w frèch, pou li pa sèk", "image": "assets/images/lotion.png"},
   ],
   "Kategori Rad": [
-    {"name": "Chemiz Lakou", "price": "3500", "desc": "Koton bon kalite", "image": "assets/images/chemiz_lakou.jpg"},
-    {"name": "Wòb Tradisyonèl", "price": "12000", "desc": "Handmade ayisyen", "image": "assets/images/wob_tradisyonel.jpg"},
-    {"name": "Savon Natirèl", "price": "800", "desc": "Pou po sansib", "image": "assets/images/savon_natirel.jpg"},
+    {"name": "Jile kou V", "price": "2000", "desc": "Jile kou V san manch", "image": "assets/images/v_vest.png"},
+    {"name": "Chemiz karabela", "price": "1000", "desc": "Chemiz ki fè ak ", "image": "assets/images/karabella_shirt.png"},
+    {"name": "Pantalon (JEANS)", "price": "900", "desc": "Pou po sansib", "image": "assets/images/black_jeans.png"},
   ],
 };
 
@@ -66,7 +66,8 @@ class MyApp extends StatelessWidget {
             borderSide: BorderSide(color: Colors.grey.shade300),
           ),
         ),
-        cardTheme: CardTheme(
+        // CardThemeData is the correct type for newer Flutter SDKs
+        cardTheme: CardThemeData(
           elevation: 3,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           color: Colors.white,
@@ -357,8 +358,8 @@ class _MainWrapperState extends State<MainWrapper> {
         unselectedFontSize: 12,
         iconSize: 28,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Kay'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite_rounded), label: 'Favori'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Akèy'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_rounded), label: 'Panye'),
         ],
       ),
@@ -501,6 +502,9 @@ class HomeScreen extends StatelessWidget {
                       } else {
                         favorisList.add(name);
                       }
+                      // The analyzer warns about calling setState on another State instance
+                      // (it's allowed at runtime here). Suppress the specific lint to reduce noise.
+                      // ignore: invalid_use_of_protected_member
                       context.findAncestorStateOfType<_MainWrapperState>()?.setState(() {});
                     },
                   ),
@@ -526,7 +530,8 @@ class HomeScreen extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.teal.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
+            // withOpacity is deprecated in newer SDKs; use withAlpha to avoid precision loss
+            BoxShadow(color: Colors.teal.withAlpha((0.3 * 255).round()), blurRadius: 8, offset: const Offset(0, 4)),
           ],
         ),
         child: Center(
@@ -569,6 +574,7 @@ class CategoryScreen extends StatelessWidget {
               final name = p["name"]!;
               if (favorisList.contains(name)) favorisList.remove(name);
               else favorisList.add(name);
+              // ignore: invalid_use_of_protected_member
               context.findAncestorStateOfType<_MainWrapperState>()?.setState(() {});
             },
           );
